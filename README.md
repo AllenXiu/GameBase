@@ -1,21 +1,26 @@
 # 游戏框架项目
 
 ## 项目概述
-这是一个基于Cocos Creator 3.8.4开发的游戏框架项目，采用TypeScript语言开发。项目采用模块化设计，提供了完整的游戏开发基础框架。
+这是一个基于Cocos Creator 3.8.4开发的游戏框架项目，采用TypeScript语言开发。项目采用模块化设计，提供了完整的游戏开发基础框架，包含客户端和服务器端。
 
 ## 项目结构
 ```
-assets/
-├── App/                 # 应用程序主入口
-└── Core/                # 核心框架
-    └── Scripts/         # 核心脚本
-        ├── Components/  # 通用组件
-        ├── Managers/    # 管理器
-        ├── UI/         # UI相关
-        └── Utils/      # 工具类
+assets/                 # 客户端资源
+├── App/               # 应用程序主入口
+└── Core/              # 核心框架
+    └── Scripts/       # 核心脚本
+        ├── Components/# 通用组件
+        ├── Managers/  # 管理器
+        ├── UI/       # UI相关
+        └── Utils/    # 工具类
+
+server/                # 服务器端
+├── tsrpc-http/       # HTTP 服务器
+└── tsrpc-websocket/  # WebSocket 服务器
 ```
 
 ## 核心功能模块
+### 客户端
 项目包含以下核心管理器：
 - 音频管理器 (AudioMgr)：处理游戏音频
 - 分包管理器 (BundleMgr)：管理资源分包
@@ -27,16 +32,50 @@ assets/
 - 时间管理器 (TimeMgr)：处理时间相关
 - UI管理器 (UIRoot)：管理游戏界面
 
+### 服务器端
+- HTTP 服务器：提供 RESTful API 服务
+- WebSocket 服务器：提供实时通信服务
+- MySQL 数据库服务：数据持久化存储
+- Redis 缓存服务：高速缓存和会话管理
+
 ## 技术栈
+### 客户端
 - 引擎：Cocos Creator 3.8.4
 - 开发语言：TypeScript
 - 依赖管理：npm
 - 加密库：crypto-es
 
+### 服务器端
+- 框架：TSRPC
+- 开发语言：TypeScript
+- 数据库：MySQL
+- 缓存：Redis
+- 依赖管理：npm
+
 ## 开发环境要求
+### 客户端
 - Node.js
 - Cocos Creator 3.8.4
 - TypeScript
+
+### 服务器端
+- Node.js
+- MySQL 服务器
+- Redis 服务器
+- TypeScript
+
+## 服务器配置
+### MySQL 配置
+- 主机：192.168.200.128
+- 用户名：root
+- 密码：xiaosiadmin123
+- 数据库：test
+
+### Redis 配置
+- 主机：192.168.200.128
+- 端口：6379
+- 密码：xiaosiadmin123
+- 数据库索引：0
 
 ## 框架特点
 1. 模块化设计：各功能模块独立管理
@@ -44,17 +83,76 @@ assets/
 3. 多语言支持：内置语言管理器
 4. 完整的资源管理：包含音频、UI等资源管理
 5. 事件驱动架构：使用事件管理器进行模块间通信
+6. 完整的服务器支持：包含 HTTP 和 WebSocket 服务
+7. 数据持久化：使用 MySQL 进行数据存储
+8. 高性能缓存：使用 Redis 进行缓存管理
 
 ## 使用说明
 1. 克隆项目到本地
-2. 使用Cocos Creator 3.8.4打开项目
-3. 安装依赖：`npm install`
-4. 运行项目
+2. 配置服务器环境：
+   - 安装并启动 MySQL 服务器
+   - 安装并启动 Redis 服务器
+   - 配置数据库连接信息
+3. 启动服务器：
+   ```bash
+   # 启动 HTTP 服务器
+   cd server/tsrpc-http
+   npm install
+   npm start
+
+   # 启动 WebSocket 服务器
+   cd server/tsrpc-websocket
+   npm install
+   npm start
+   ```
+4. 使用 Cocos Creator 3.8.4 打开项目
+5. 安装客户端依赖：`npm install`
+6. 运行项目
 
 ## 开发指南
-1. 创建新游戏时，建议在assets目录下创建新的子游戏目录
-2. 使用Core框架提供的各种管理器进行开发
+1. 创建新游戏时，建议在 assets 目录下创建新的子游戏目录
+2. 使用 Core 框架提供的各种管理器进行开发
 3. 遵循模块化设计原则，保持代码结构清晰
+4. 服务器端开发遵循 TSRPC 框架规范
+
+## 服务器端开发示例
+### 1. MySQL 使用示例
+```typescript
+import { MySQLService } from './services/MySQLService';
+
+// 获取 MySQL 服务实例
+const mysqlService = MySQLService.getInstance();
+
+// 执行查询
+const users = await mysqlService.query('SELECT * FROM users WHERE id = ?', [1]);
+
+// 执行事务
+await mysqlService.transaction(async (conn) => {
+    await conn.execute('INSERT INTO users (name) VALUES (?)', ['test']);
+    await conn.execute('UPDATE users SET age = ? WHERE name = ?', [20, 'test']);
+});
+```
+
+### 2. Redis 使用示例
+```typescript
+import { RedisService } from './services/RedisService';
+
+// 获取 Redis 服务实例
+const redisService = RedisService.getInstance();
+
+// 设置键值对
+await redisService.set('key', 'value');
+await redisService.set('key', 'value', 60); // 60秒后过期
+
+// 获取值
+const value = await redisService.get('key');
+
+// 删除键
+await redisService.del('key');
+
+// 检查键是否存在
+const exists = await redisService.exists('key');
+```
 
 ## 组件使用说明
 
